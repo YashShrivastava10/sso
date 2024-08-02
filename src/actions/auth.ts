@@ -1,53 +1,67 @@
 "use server"
 
 import { connectDB } from "@/db"
+import { encrypt, verifyPassword } from "@/utils/db/passwordHash"
+import { createFailResponse, createSuccessResponse } from "@/utils/db/response"
 import { generateToken } from "@/utils/db/token"
+import { User } from "@/utils/types/UserType"
 
 const connection = connectDB()
 
 export const login = async(email: string, password: string) => {
   try{
+    // fetch collection
     const collection = (await connection).collection("users")
+
+    // Check if user exist in db
     const result = await collection.findOne({ email })
 
-    if(!result) return { user: null, status: false, message: "InvalidUser"}
+    if(!result) return createFailResponse("Invalid User")
 
-    if(result.password !== password) return { user: null, status: false, message: "Invalid Password"}
+    // If user exist, check if password is correct
+    if(!await verifyPassword(password, result.password)) createFailResponse("Invalid Password")
 
-    const { _id, ...data } = result
+    // format data & genearate token
+    let { _id, ...data } = result
     const token = await generateToken(email)
-
-    return { user: { ...data, token }, status: true, message: "Logged In"}
+    data = { ...data, token }
+    
+    return createSuccessResponse(data as User, "Logged In")
   }
   catch(e){
     console.log(e)
-    return { user: null, status: false, message: "Error while logging.."}
+    return createFailResponse("Error while logging..")
   }
 }
 
 export const signup = async(firstName: string, lastName: string, email: string, password: string) => {
   try{
+    // fetch collection
     const collection = (await connection).collection("users")
+
+    // Check if user exist in db
     const user = await collection.findOne({ email })
 
-    if(user) return { user: null, status: false, message: "User already exsist"}
+    if(user) return createFailResponse("User already exsist")
 
-    const result = await collection.insertOne({ firstName, lastName, email, password, createdAt: new Date() })
+    // If user exist, hash password
+    const hashedPassword = await encrypt(password)
+    if(!hashedPassword) return createFailResponse("Error while signing up..")
 
-    if(!result.acknowledged) return { user: null, status: false, message: "Error while signing up.." }
+    // update db
+    const createdAt = new Date()
+    const result = await collection.insertOne({ firstName, lastName, email, password: hashedPassword, createdAt })
 
-    const updatedUser = await collection.findOne({ email })
+    if(!result.acknowledged) return createFailResponse("Error while signing up..")
 
-    if(!updatedUser) return { user: null, status: false, message: "Error while signing up.." }
-
-    const { _id, ...data } = updatedUser
-
+    // format data & genearate token
     const token = await generateToken(email)
-    
-    return { user: { ...data, token }, status: true, message: "Account created" }
+    const data = { email, firstName, lastName, createdAt, token }
+
+    return createSuccessResponse(data as User, "Account created")
   }
   catch(e){
     console.log(e);
-    return { user: null, status: false, message: "Error while signing up.."}
+    return createFailResponse("Error while signing up..")
   }
 }

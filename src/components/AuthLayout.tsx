@@ -2,7 +2,7 @@ import { login, signup } from "@/actions/auth"
 import { FirstLastNameFormField, FormField, GithubAuth, GoogleAuth, ProfileImage } from "@/utils/components"
 import { displayForm } from "@/utils/formUtils"
 import { AuthType } from "@/utils/types/FromType"
-import { cookies } from "next/headers"
+import { Response } from "@/utils/types/UserType"
 import Image from "next/image"
 import Link from "next/link"
 import { redirect } from "next/navigation"
@@ -15,34 +15,27 @@ const AuthLayout = ({ status, searchParams }: { status: AuthType, searchParams: 
 
   const handleSubmit = async(formData: FormData) => {
     "use server"
-    if(status === "login"){
-      const email = formData.get("email") as string
-      const password = formData.get("password") as string
-  
-      const response = await login(email, password)
-      if(!response.status){
-        console.log(response.message)
-        return
-      }
-      cookies().set("user", JSON.stringify(response.user))
-      console.log(response.user);
-    }
-    else{
-      const firstName = formData.get("firstName") as string
-      const lastName = formData.get("lastName") as string
-      const email = formData.get("email") as string
-      const password = formData.get("password") as string
 
-      const response = await signup(firstName, lastName, email, password)
-      if(!response.status){
-        console.log(response.message)
-        return
-      }
-      cookies().set("user", JSON.stringify(response.user))
-      console.log(response.user);
+    const email = formData.get("email") as string
+    const password = formData.get("password") as string
+    const firstName = formData.get("firstName") as string
+    const lastName = formData.get("lastName") as string
+
+    const auth = {
+      "login": () => login(email, password),
+      "signup": () => signup(firstName, lastName, email, password),
     }
 
-    if(REDIRECT_URL) redirect(REDIRECT_URL)
+    const response: Response = await auth[status]()
+
+    if(!response.status){
+      console.log(response.message)
+      return
+    }
+
+    console.log(response.message);
+
+    if(response.user && REDIRECT_URL) redirect(`${REDIRECT_URL}?token=${response.user.token}`)
   }
 
   return (

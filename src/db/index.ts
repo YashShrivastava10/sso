@@ -6,7 +6,6 @@ const DB_NAME = process.env.DB_NAME !!
 const mongodbClient = new MongoClient(MONGODB_URL)
 
 let isConnected = false;
-console.log(isConnected);
 
 export const connectDB = async() => {
   if(!isConnected){

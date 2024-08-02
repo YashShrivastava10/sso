@@ -20,6 +20,7 @@ const ProfileImage = () => {
         type="file"
         ref={fileInputRef}
         className="hidden"
+        name="profileImage"
         onChange={handleFileChange}
       />
     </section>
