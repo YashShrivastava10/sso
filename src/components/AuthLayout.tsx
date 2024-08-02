@@ -2,6 +2,7 @@ import { login, signup } from "@/actions/auth"
 import { FirstLastNameFormField, FormField, GithubAuth, GoogleAuth, ProfileImage } from "@/utils/components"
 import { displayForm } from "@/utils/formUtils"
 import { AuthType } from "@/utils/types/FromType"
+import { cookies } from "next/headers"
 import Image from "next/image"
 import Link from "next/link"
 import { redirect } from "next/navigation"
@@ -23,6 +24,7 @@ const AuthLayout = ({ status, searchParams }: { status: AuthType, searchParams: 
         console.log(response.message)
         return
       }
+      cookies().set("user", JSON.stringify(response.user))
       console.log(response.user);
     }
     else{
@@ -36,6 +38,7 @@ const AuthLayout = ({ status, searchParams }: { status: AuthType, searchParams: 
         console.log(response.message)
         return
       }
+      cookies().set("user", JSON.stringify(response.user))
       console.log(response.user);
     }
 
