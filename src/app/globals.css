@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base{
+  body{
+    @apply font-primary h-screen w-screen flex justify-center items-center bg-primary text-white
+  }
+  h1{
+    @apply text-4xl font-bold
+  }
+  h2{
+    @apply text-3xl font-bold
+  }
+  h3{
+    @apply text-2xl font-bold
+  }
+  h4{
+    @apply text-xl font-bold
+  }
+  h5{
+    @apply text-lg font-bold
+  }
+  h6{
+    @apply text-sm font-bold
+  }
+}
+
+.placeholder{
+  @apply placeholder:text-white placeholder:font-thin placeholder:text-12 placeholder:text-opacity-70 placeholder:tracking-wider
+}
