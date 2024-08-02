@@ -1,6 +1,7 @@
 "use server"
 
 import { connectDB } from "@/db"
+import { generateToken } from "@/utils/db/token"
 
 const connection = connectDB()
 
@@ -14,7 +15,9 @@ export const login = async(email: string, password: string) => {
     if(result.password !== password) return { user: null, status: false, message: "Invalid Password"}
 
     const { _id, ...data } = result
-    return { user: { ...data }, status: true, message: "Logged In"}
+    const token = await generateToken(email)
+
+    return { user: { ...data, token }, status: true, message: "Logged In"}
   }
   catch(e){
     console.log(e)
@@ -39,7 +42,9 @@ export const signup = async(firstName: string, lastName: string, email: string, 
 
     const { _id, ...data } = updatedUser
 
-    return { user: { ...data }, status: true, message: "Account created" }
+    const token = await generateToken(email)
+    
+    return { user: { ...data, token }, status: true, message: "Account created" }
   }
   catch(e){
     console.log(e);
