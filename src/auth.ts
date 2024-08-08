@@ -13,7 +13,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
       }
     }),
-    Github,
+    Github({
+      authorization: {
+        params: {
+          prompt: "select_account"
+        }
+      }
+    }),
     Credentials({
       name: "credentials",
       credentials: {
@@ -47,4 +53,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return false
     },
   },
+  cookies: {
+    sessionToken: {
+      name: "authjs.session-token"
+    }
+  }
 })
