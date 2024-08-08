@@ -1,8 +1,6 @@
 import Account from '@/components/Account'
 import React from 'react'
 
-const Page = ({ searchParams }: {
-  searchParams: Record<string, string>
-}) => <Account searchParams={searchParams} />
+const Page = () => <Account />
 
 export default Page
