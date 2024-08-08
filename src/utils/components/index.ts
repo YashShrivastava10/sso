@@ -1,7 +1,8 @@
-import FirstLastNameFormField from "@/utils/components/FirstLastNameFormField"
-import FormField from "@/utils/components/FormField"
-import GithubAuth from "@/utils/components/GithubAuth"
-import GoogleAuth from "@/utils/components/GoogleAuth"
-import ProfileImage from "@/utils/components/ProfileImage"
+import FirstLastNameFormField from "./FirstLastNameFormField"
+import FormField from "./FormField"
+import GithubAuthForm from "./GithubAuthForm"
+import GoogleAuthForm from "./GoogleAuthForm"
+import ProfileImage from "./ProfileImage"
+import CredentialAuthForm from "./CredentialAuthForm"
 
-export { FirstLastNameFormField, FormField, GithubAuth, GoogleAuth, ProfileImage }
+export { FirstLastNameFormField, FormField, GithubAuthForm, GoogleAuthForm, ProfileImage, CredentialAuthForm }

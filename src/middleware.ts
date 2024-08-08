@@ -1,18 +1,51 @@
-// middleware.js
 import { NextRequest, NextResponse } from 'next/server';
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+export default async function middleware(request: NextRequest) {
+  const { pathname, searchParams } = request.nextUrl;
 
-  // Redirect to /login if accessing the root path
-  if (pathname === '/') {
+  // Create a response object
+  const response = NextResponse.next();
+
+  // Get current redirect URL from query parameters if it exists
+  const redirectQuery = searchParams.get('redirect');
+
+  // Check if there's a `redirect` query parameter
+  if (redirectQuery) {
+    // Set or update the `redirect` cookie
+    response.cookies.set('redirect', redirectQuery)
+  }
+
+  // Retrieve the `redirect` URL from the cookie
+  const redirectCookie = request.cookies.get('redirect')?.value;
+
+  // Determine if the current path is public or protected
+  const publicPaths = ['/', '/login', '/signup'];
+  const isPublicPath = publicPaths.includes(pathname);
+  
+  // Get session token to check if the user is logged in
+  const hasSession = request.cookies.get('authjs.session-token');
+
+  // Handle redirects based on the session and path
+  if (isPublicPath && hasSession) {
+    // User is logged in and on a public path, redirect to the saved `redirect` URL or default to `/account`
+    response.cookies.delete('redirect');
+    return NextResponse.redirect(new URL(redirectCookie || '/account', request.url));
+  }
+
+  if (!isPublicPath && !hasSession) {
+    // User is not logged in and on a protected path, redirect to `/login`
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  return NextResponse.next();
+  if (pathname === '/') {
+    // Redirect root path to `/login`
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  // Continue with the request if no redirection conditions are met
+  return response;
 }
 
-// Specify the paths you want to apply the middleware to
 export const config = {
-  matcher: '/',
+  matcher: ['/', '/login', '/signup', '/account'] // Match all routes
 };

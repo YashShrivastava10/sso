@@ -1,9 +1,9 @@
 export type User = {
+  password: string
   email: string,
   firstName: string,
   lastName: string,
   createdAt: Date,
-  token: string,
 }
 
 export type Response = {
